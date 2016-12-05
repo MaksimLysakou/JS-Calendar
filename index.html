@@ -5,11 +5,32 @@
 	<title>Главная</title>
 
 	<script src="calendar.js"></script>
+	<script src="calendarDailyRepeatsModule.js"></script>
 </head>
 
 
 <body>
+    <script type="text/javascript">
+        function logDate() {
+            var currentDate = new Date();
+            console.log("["
+                    + currentDate.getHours()
+                    + ":" + currentDate.getMinutes()
+                    + ":" + currentDate.getSeconds()
+                    + "] " + "Callback happens"
+            );
 
+        }
+
+        var date1 = new Date();
+        date1.setSeconds(date1.getSeconds() + 5);
+
+        var event = new Event("name1", date1, logDate);
+        event.repeats = [2,5];
+
+        Calendar.addEvent(event);
+
+    </script>
 	
 </body>
 </html>
