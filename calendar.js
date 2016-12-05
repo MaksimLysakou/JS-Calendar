@@ -1,8 +1,7 @@
-// TODO:
 // Description
 // $param
 // jsdoc
-// $return
+//$return
 
 
 
@@ -29,67 +28,58 @@ function ExtendedEvent(name, dateTime, callback, repeats, preliminaryCallback, p
 ExtendedEvent.prototype = Object.create(Event.prototype);
 
 function getNextExecuteDate (event) {
+    var nextExecuteDate = new Date(event.dateTime);
+
     if(event.repeats === undefined || event.repeats.length == 0) {
-        // Without daily repeats.
-        return event.dateTime;
+        return nextExecuteDate;
     }else{
-        // With daily repeats.
         var currentDate = new Date();
         if(event.repeats.indexOf(currentDate.getDay()) != -1){
+
+            nextExecuteDate.setFullYear(currentDate.getFullYear());
+            nextExecuteDate.setMonth(currentDate.getMonth());
+            nextExecuteDate.setDate(currentDate.getDate());
+
             if(event.dateTime.getHours() > currentDate.getHours()){
-                return new Date(currentDate.getFullYear(), currentDate.getMonth(),
-                    currentDate.getDate(), event.dateTime.getHours(),
-                    event.dateTime.getMinutes(), event.dateTime.getSeconds(),
-                    event.dateTime.getMilliseconds());
+                return nextExecuteDate;
             }
 
             if(event.dateTime.getHours() == currentDate.getHours()){
                 if(event.dateTime.getMinutes() > currentDate.getMinutes()){
-                    return new Date(currentDate.getFullYear(), currentDate.getMonth(),
-                        currentDate.getDate(), currentDate.getHours(),
-                        event.dateTime.getMinutes(), event.dateTime.getSeconds(),
-                        event.dateTime.getMilliseconds());
+                    return nextExecuteDate;
                 }
 
                 if(event.dateTime.getMinutes() == currentDate.getMinutes()){
                     if(event.dateTime.getSeconds() > currentDate.getSeconds()){
-                        return new Date(currentDate.getFullYear(), currentDate.getMonth(),
-                            currentDate.getDate(), currentDate.getHours(),
-                            currentDate.getMinutes(), event.dateTime.getSeconds(),
-                            event.dateTime.getMilliseconds());
+                        return nextExecuteDate;
                     }
 
                     if(event.dateTime.getSeconds() == currentDate.getSeconds()){
                         if(event.dateTime.getMilliseconds() > currentDate.getMilliseconds())
-                            return new Date(currentDate.getFullYear(), currentDate.getMonth(),
-                                currentDate.getDate(), currentDate.getHours(),
-                                currentDate.getMinutes(), currentDate.getSeconds(),
-                                event.dateTime.getMilliseconds());
+                            return nextExecuteDate;
                     }
                 }
             }
         }
 
-        //find next day
-        var nextDayIndex = 0;
-        event.repeats.forEach(function(repeat, i) {
-            if(repeat > currentDate.getDay()){
-                nextDayIndex = i;
-            }
-        });
+        var nextExecuteDay = event.repeats[0];
 
-        if(nextDayIndex > currentDate.getDay()){
-            return new Date(currentDate.getFullYear(), currentDate.getMonth(),
-                currentDate.getDate() + event.repeats[nextDayIndex] - currentDate.getDay(),
-                event.dateTime.getHours(),
-                event.dateTime.getMinutes(), event.dateTime.getSeconds(),
-                event.dateTime.getMilliseconds());
+        for (var repeat in event.repeats){
+            if(repeat > currentDate.getDay()){
+                nextExecuteDay = repeat;
+                break;
+            }
+        }
+
+        nextExecuteDate.setFullYear(currentDate.getFullYear());
+        nextExecuteDate.setMonth(currentDate.getMonth());
+
+        if(nextExecuteDay > currentDate.getDay()){
+            nextExecuteDate.setDate(currentDate.getDate() + nextExecuteDay - currentDate.getDay());
+            return nextExecuteDate;
         } else {
-            return new Date(currentDate.getFullYear(), currentDate.getMonth(),
-                currentDate.getDate() + event.repeats[nextDayIndex] - currentDate.getDay() + 7,
-                event.dateTime.getHours(),
-                event.dateTime.getMinutes(), event.dateTime.getSeconds(),
-                event.dateTime.getMilliseconds());
+            nextExecuteDate.setDate(currentDate.getDate() + nextExecuteDay - currentDate.getDay() + 7)
+            return nextExecuteDate;
         }
     }
 }
@@ -250,25 +240,34 @@ function logDate() {
     );
 
 }
-
+//
 var date1 = new Date();
 date1.setSeconds(date1.getSeconds() + 5);
-
-var date2 = new Date();
-date2.setSeconds(date2.getSeconds() + 15);
-
-var date3 = new Date();
-date3.setSeconds(date3.getSeconds() + 60);
-
-var extEvent = new ExtendedEvent("name2", date1, logDate, [1,2,5], logDate, 2000);
-
-Calendar.addEvent(new Event("name1", new Date(1000, 10, 20), logDate));
-Calendar.addEvent(extEvent);
-Calendar.addEvent(new Event("name3", date2, logDate));
-Calendar.addEvent(new Event("name4", date3, logDate));
-Calendar.addEvent(new Event("name5", new Date(2016, 12, 27), logDate));
+//
+// var date2 = new Date();
+// date2.setSeconds(date2.getSeconds() + 15);
+//
+// var date3 = new Date();
+// date3.setSeconds(date3.getSeconds() + 60);
+//
+var extEvent = new ExtendedEvent("name2", date1, logDate, [1, 2], logDate, 2000);
+//
+// Calendar.addEvent(new Event("name1", new Date(1000, 10, 20), logDate));
+ Calendar.addEvent(extEvent);
+// Calendar.addEvent(new Event("name3", date2, logDate));
+// Calendar.addEvent(new Event("name4", date3, logDate));
+// Calendar.addEvent(new Event("name5", new Date(2016, 12, 27), logDate));
 // карирование
 // string templates
 
 // findindex + polyfil
 
+var exDate = getNextExecuteDate(extEvent);
+console.log(
+    exDate.getDate() + "." +
+    exDate.getMonth() + "." +
+    exDate.getFullYear() + " " +
+    exDate.getHours() + ":" +
+    exDate.getMinutes() + ":" +
+    exDate.getSeconds()
+);
