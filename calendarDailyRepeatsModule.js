@@ -1,3 +1,14 @@
+function Event(name, dateTime, callback) {
+    this.name = name;
+    this.dateTime = dateTime;
+    this.callback = callback;
+
+    this.repeats = [];
+
+    this.id = undefined;
+    this.timeout = undefined;
+}
+
 function getNextExecuteDate (event) {
     var nextExecuteDate = new Date(event.dateTime);
 
@@ -49,39 +60,29 @@ function getNextExecuteDate (event) {
             nextExecuteDate.setDate(currentDate.getDate() + nextExecuteDay - currentDate.getDay());
             return nextExecuteDate;
         } else {
-            nextExecuteDate.setDate(currentDate.getDate() + nextExecuteDay - currentDate.getDay() + 7)
+            nextExecuteDate.setDate(currentDate.getDate() + nextExecuteDay - currentDate.getDay() + 7);
             return nextExecuteDate;
         }
     }
 }
-
-function Event(name, dateTime, callback) {
-    this.name = name;
-    this.dateTime = dateTime;
-    this.callback = callback;
-
-    this.id = undefined;
-    this.timeout = undefined;
-    this.repeats = undefined;
-}
-
 Calendar.startEventScheduler = function() {
     var events = Calendar.getAllEvents();
     
     events.forEach(function (event) {
         var nextExecute = getNextExecuteDate(event) - new Date();
+
         if (( nextExecute <= INT32_MAX ) &&
             ( nextExecute > 0 ) &&
             ( event.timeout === undefined )) {
+
             event.timeout = setTimeout(event.callback, nextExecute);
         }
     });
 };
-
 Calendar.addEvent = function (event) {
     var events = Calendar.getAllEvents();
-
     var nextExecute = getNextExecuteDate(event) - new Date();
+
     if( (nextExecute >= 0) && (nextExecute <= INT32_MAX) ){
         event.timeout = setTimeout(event.callback, nextExecute);
     }
@@ -93,10 +94,9 @@ Calendar.addEvent = function (event) {
 
     if(Calendar.isSchedulerStarted == false){
         Calendar.isSchedulerStarted = true;
-        setInterval(Calendar.startEventScheduler, 6000);
+        setInterval(Calendar.startEventScheduler, 60 * 1000);
     }
 };
-
 Calendar.editEventById = function (eventId, name, date) {
     var events = Calendar.getAllEvents();
 

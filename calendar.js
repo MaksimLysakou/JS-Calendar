@@ -1,12 +1,8 @@
-// Description
-// $param
-// jsdoc
-//$return
-
-
-
 const INT32_MAX = 2147483647;
 
+function getNextExecuteDate (event) {
+    return event.dateTime;
+}
 function Event(name, dateTime, callback) {
     this.name = name;
     this.dateTime = dateTime;
@@ -15,22 +11,9 @@ function Event(name, dateTime, callback) {
     this.id = undefined;
     this.timeout = undefined;
 }
-
-// function ExtendedEvent(name, dateTime, callback, repeats, preliminaryCallback, preliminaryDelay) {
-//     Event.apply(this, arguments);
-//
-//     this.repeats = repeats;
-//     this.preliminaryCallback = preliminaryCallback;
-//     this.preliminaryDelay = preliminaryDelay;
-//
-//     this.preliminaryCallbackTimeout = undefined;
-// }
-// ExtendedEvent.prototype = Object.create(Event.prototype);
-
 var Calendar = (function() {
 
     var events = [];
-    var lastId = 0;
 
     function startEventScheduler() {
         if(event instanceof Event){
@@ -47,23 +30,21 @@ var Calendar = (function() {
             if( (event.dateTime >= new Date()) && (event.dateTime - new Date() <= INT32_MAX) ){
                 timeout = setTimeout(event.callback, event.dateTime - new Date());
             }
-            event.id = ++lastId;
+            event.id = events.reduce(function(maxId, currentEvent) {
+                return (maxId < currentEvent.id) ? currentEvent.id : maxId;
+            }, 0) + 1;
             event.timeout = timeout;
             events.push(event);
 
             if(this.isSchedulerStarted == false){
                 this.isSchedulerStarted = true;
-                setInterval(startEventScheduler, 1000*60);
+                setInterval(startEventScheduler, 60 * 1000);
             }
     }
     function deleteEventById(eventId) {
         for(var i =0; i<events.length; i++) {
             if(events[i].id === eventId) {
                 clearTimeout(events[i].timeout);
-
-                // if(events[i] instanceof ExtendedEvent){
-                //     clearTimeout(events[i].preliminaryCallbackTimeout);
-                // }
                 events.splice(i, 1);
                 break;
             }
@@ -81,17 +62,6 @@ var Calendar = (function() {
                 if ((event.dateTime >= new Date()) && (event.dateTime - new Date() <= INT32_MAX)) {
                     event.timeout = setTimeout(event.callback, event.dateTime - new Date());
                 }
-
-                // if (event instanceof ExtendedEvent) {
-                //     clearTimeout(event.preliminaryCallbackTimeout);
-                //     event.preliminaryCallbackTimeout = undefined;
-                //
-                //     var nextExecute = getNextExecuteDate(event) - new Date();
-                //     if ((nextExecute >= 0) && (nextExecute <= INT32_MAX)) {
-                //         event.timeout = setTimeout(event.callback, nextExecute);
-                //         event.preliminaryCallbackTimeout = setTimeout(event.preliminaryCallback, nextExecute - event.preliminaryDelay);
-                //     }
-                // }
             }
         });
     }
@@ -131,7 +101,6 @@ var Calendar = (function() {
         });
     }
 
-
     return {
         addEvent: addEvent,
         deleteEventById: deleteEventById,
@@ -146,4 +115,3 @@ var Calendar = (function() {
 }());
 
 Calendar.isSchedulerStarted = false;
-

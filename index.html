@@ -5,12 +5,15 @@
 	<title>Главная</title>
 
 	<script src="calendar.js"></script>
-	<script src="calendarDailyRepeatsModule.js"></script>
+
+    <script src="calendarDailyRepeatsModule.js"></script>
+    <script src="calendarPreliminaryModule.js"></script>
 </head>
 
 
 <body>
     <script type="text/javascript">
+
         function logDate() {
             var currentDate = new Date();
             console.log("["
@@ -19,14 +22,15 @@
                     + ":" + currentDate.getSeconds()
                     + "] " + "Callback happens"
             );
-
         }
 
-        var date1 = new Date();
-        date1.setSeconds(date1.getSeconds() + 5);
+        var date = new Date();
+        date.setSeconds(date.getSeconds() + 5);
 
-        var event = new Event("name1", date1, logDate);
-        event.repeats = [2,5];
+        var event = new Event("name", date, logDate);
+        event.repeats = [1,2,5];
+
+        Calendar.addPreliminaryCallback(logDate, 3000);
 
         Calendar.addEvent(event);
 
