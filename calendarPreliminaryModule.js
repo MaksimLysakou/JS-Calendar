@@ -15,7 +15,7 @@ function Event(name, dateTime, callback, preliminaryCallback, preliminaryDelay){
     this.preliminaryTimeout = undefined;
 }
 
-if(Calendar !== undefined){
+if((typeof Calendar) !== "undefined"){
     Calendar.addPreliminaryCallback = function (callback, delay){
         Calendar.preliminaryCallback = callback;
         Calendar.preliminaryDelay = delay;

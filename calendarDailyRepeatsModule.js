@@ -65,7 +65,7 @@ function getNextExecuteDate (event){
     }
 }
 
-if(Calendar !== undefined){
+if((typeof Calendar) !== "undefined"){
     Calendar.startEventScheduler = function(){
         var events = Calendar.getAllEvents();
         var nextExecute;
