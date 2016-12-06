@@ -27,12 +27,14 @@
         var date = new Date();
         date.setSeconds(date.getSeconds() + 5);
 
-        var event = new Event("name", date, logDate);
+        var event = new Event("name", date, logDate, logDate, 1000);
         event.repeats = [1,2,5];
 
         Calendar.addPreliminaryCallback(logDate, 3000);
 
         Calendar.addEvent(event);
+
+        Calendar.deleteEventById(2);
 
     </script>
 	

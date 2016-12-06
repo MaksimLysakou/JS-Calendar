@@ -1,4 +1,4 @@
-function Event(name, dateTime, callback) {
+function Event(name, dateTime, callback, preliminaryCallback, preliminaryDelay) {
     this.name = name;
     this.dateTime = dateTime;
     this.callback = callback;
@@ -9,6 +9,10 @@ function Event(name, dateTime, callback) {
     this.timeout = undefined;
     
     this.preliminaryCommonTimeout = undefined;
+
+    this.preliminaryCallback = preliminaryCallback;
+    this.preliminaryDelay = preliminaryDelay;
+    this.preliminaryTimeout = undefined;
 }
 
 Calendar.addPreliminaryCallback = function (callback, delay) {
@@ -25,8 +29,16 @@ Calendar.startEventScheduler = function() {
             ( event.timeout === undefined )) {
 
             event.timeout = setTimeout(event.callback, nextExecute);
-            event.preliminaryCommonTimeout = setTimeout(Calendar.preliminaryCallback,
-                nextExecute - Calendar.preliminaryDelay);
+
+            if(Calendar.preliminaryCallback != undefined){
+                event.preliminaryCommonTimeout = setTimeout(Calendar.preliminaryCallback,
+                    nextExecute - Calendar.preliminaryDelay);
+            }
+
+            if(event.preliminaryCallback != undefined){
+                event.preliminaryTimeout = setTimeout(event.preliminaryCallback,
+                    nextExecute - event.preliminaryDelay);
+            }
         }
     });
 };
@@ -36,8 +48,16 @@ Calendar.addEvent = function (event) {
     var nextExecute = getNextExecuteDate(event) - new Date();
     if( (nextExecute >= 0) && (nextExecute <= INT32_MAX) ){
         event.timeout = setTimeout(event.callback, nextExecute);
-        event.preliminaryCommonTimeout = setTimeout(Calendar.preliminaryCallback,
-            nextExecute - Calendar.preliminaryDelay);
+
+        if(Calendar.preliminaryCallback != undefined){
+            event.preliminaryCommonTimeout = setTimeout(Calendar.preliminaryCallback,
+                nextExecute - Calendar.preliminaryDelay);
+        }
+
+        if(event.preliminaryCallback != undefined){
+            event.preliminaryTimeout = setTimeout(event.preliminaryCallback,
+                nextExecute - event.preliminaryDelay);
+        }
     }
 
     event.id = events.reduce(function(maxId, currentEvent) {
@@ -62,18 +82,28 @@ Calendar.editEventById = function (eventId, name, date) {
                 clearTimeout(event.timeout);
                 event.timeout = undefined;
 
+                clearTimeout(event.preliminaryCommonTimeout);
+                event.preliminaryCommonTimeout = undefined;
+
+                clearTimeout(event.preliminaryTimeout);
+                event.preliminaryTimeout = undefined;
+
                 event.dateTime = date;
 
                 var nextExecute = getNextExecuteDate(event) - new Date();
 
-                clearTimeout(event.preliminaryCommonTimeout);
-                event.preliminaryCommonTimeout = undefined;
-
                 if ((nextExecute >= 0) && (nextExecute <= INT32_MAX)) {
                     event.timeout = setTimeout(event.callback, nextExecute);
 
-                    event.preliminaryCommonTimeout = setTimeout(Calendar.preliminaryCallback,
-                        nextExecute - Calendar.preliminaryDelay);
+                    if(Calendar.preliminaryCallback != undefined){
+                        event.preliminaryCommonTimeout = setTimeout(Calendar.preliminaryCallback,
+                            nextExecute - Calendar.preliminaryDelay);
+                    }
+
+                    if(event.preliminaryCallback != undefined){
+                        event.preliminaryTimeout = setTimeout(event.preliminaryCallback,
+                            nextExecute - event.preliminaryDelay);
+                    }
                 }
             }
         }
@@ -86,6 +116,7 @@ Calendar.deleteEventById = function (eventId) {
         if(events[i].id === eventId) {
             clearTimeout(events[i].timeout);
             clearTimeout(events[i].preliminaryCommonTimeout);
+            clearTimeout(events[i].preliminaryTimeout);
             events.splice(i, 1);
             break;
         }

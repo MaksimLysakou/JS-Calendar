@@ -66,7 +66,7 @@ var Calendar = (function() {
         });
     }
     function getAllEvents() {
-        return events.slice();
+        return events;
     }
     function getEventsByDay(date) {
 
