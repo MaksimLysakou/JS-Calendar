@@ -1,4 +1,4 @@
-function Event(name, dateTime, callback) {
+function Event(name, dateTime, callback){
     this.name = name;
     this.dateTime = dateTime;
     this.callback = callback;
@@ -9,15 +9,14 @@ function Event(name, dateTime, callback) {
     this.timeout = undefined;
 }
 
-function getNextExecuteDate (event) {
+function getNextExecuteDate (event){
     var nextExecuteDate = new Date(event.dateTime);
 
-    if(event.repeats === undefined || event.repeats.length == 0) {
+    if(event.repeats === undefined || event.repeats.length == 0){
         return nextExecuteDate;
-    }else{
+    } else{
         var currentDate = new Date();
         if(event.repeats.indexOf(currentDate.getDay()) != -1){
-
             nextExecuteDate.setFullYear(currentDate.getFullYear());
             nextExecuteDate.setMonth(currentDate.getMonth());
             nextExecuteDate.setDate(currentDate.getDate());
@@ -59,7 +58,7 @@ function getNextExecuteDate (event) {
         if(nextExecuteDay > currentDate.getDay()){
             nextExecuteDate.setDate(currentDate.getDate() + nextExecuteDay - currentDate.getDay());
             return nextExecuteDate;
-        } else {
+        } else{
             nextExecuteDate.setDate(currentDate.getDate() + nextExecuteDay - currentDate.getDay() + 7);
             return nextExecuteDate;
         }
@@ -67,33 +66,33 @@ function getNextExecuteDate (event) {
 }
 
 if(Calendar !== undefined){
-    Calendar.startEventScheduler = function() {
+    Calendar.startEventScheduler = function(){
         var events = Calendar.getAllEvents();
         var nextExecute;
 
         events.filter(
-            function (event) {
+            function (event){
                 nextExecute = getNextExecuteDate(event) - new Date();
 
-                return ( (( nextExecute <= MAX_TIMEOUT ) &&
-                ( nextExecute > 0 ) &&
-                ( event.timeout === undefined )) );
+                return (((nextExecute <= MAX_TIMEOUT) &&
+                (nextExecute > 0) &&
+                (event.timeout === undefined)));
             }
         ).forEach(
-            function (event) {
+            function (event){
                 event.timeout = setTimeout(event.callback, nextExecute);
             }
         );
     };
-    Calendar.addEvent = function (event) {
+    Calendar.addEvent = function (event){
         var events = Calendar.getAllEvents();
         var nextExecute = getNextExecuteDate(event) - new Date();
 
-        if( (nextExecute >= 0) && (nextExecute <= MAX_TIMEOUT) ){
+        if((nextExecute >= 0) && (nextExecute <= MAX_TIMEOUT)){
             event.timeout = setTimeout(event.callback, nextExecute);
         }
 
-        event.id = events.reduce(function(maxId, currentEvent) {
+        event.id = events.reduce(function(maxId, currentEvent){
                 return (maxId < currentEvent.id) ? currentEvent.id : maxId;
             }, 0) + 1;
         events.push(event);
@@ -103,12 +102,12 @@ if(Calendar !== undefined){
             setInterval(Calendar.startEventScheduler, SCHEDULER_INTERVAL);
         }
     };
-    Calendar.editEventById = function (eventId, name, date) {
+    Calendar.editEventById = function (eventId, name, date){
         var events = Calendar.getAllEvents();
 
-        var currentEvent = events.find( function (event) {
+        var currentEvent = events.find(function (event){
                 return (event.id == eventId);
-        } );
+        });
 
         if(currentEvent != undefined){
             if(name !== undefined)
@@ -127,6 +126,6 @@ if(Calendar !== undefined){
             }
         }
     };
-} else {
+} else{
     console.error("Main calendar module doesn't exists!")
 }

@@ -1,4 +1,4 @@
-function Event(name, dateTime, callback, preliminaryCallback, preliminaryDelay) {
+function Event(name, dateTime, callback, preliminaryCallback, preliminaryDelay){
     this.name = name;
     this.dateTime = dateTime;
     this.callback = callback;
@@ -15,17 +15,17 @@ function Event(name, dateTime, callback, preliminaryCallback, preliminaryDelay) 
     this.preliminaryTimeout = undefined;
 }
 
-if(Calendar !== undefined) {
-    Calendar.addPreliminaryCallback = function (callback, delay) {
+if(Calendar !== undefined){
+    Calendar.addPreliminaryCallback = function (callback, delay){
         Calendar.preliminaryCallback = callback;
         Calendar.preliminaryDelay = delay;
     };
-    Calendar.startEventScheduler = function () {
+    Calendar.startEventScheduler = function (){
         var events = Calendar.getAllEvents();
         var nextExecute;
 
         events.filter(
-            function (event) {
+            function (event){
                 nextExecute = getNextExecuteDate(event) - new Date();
 
                 return ( (( nextExecute <= MAX_TIMEOUT ) &&
@@ -33,7 +33,7 @@ if(Calendar !== undefined) {
                 ( event.timeout === undefined )) );
             }
         ).forEach(
-            function (event) {
+            function (event){
                 event.timeout = setTimeout(event.callback, nextExecute);
 
                 if (Calendar.preliminaryCallback != undefined) {
@@ -50,21 +50,21 @@ if(Calendar !== undefined) {
             }
         );
     };
-    Calendar.addEvent = function (event) {
+    Calendar.addEvent = function (event){
         var events = Calendar.getAllEvents();
 
         var nextExecute = getNextExecuteDate(event) - new Date();
-        if ((nextExecute >= 0) && (nextExecute <= MAX_TIMEOUT)) {
+        if ((nextExecute >= 0) && (nextExecute <= MAX_TIMEOUT)){
             event.timeout = setTimeout(event.callback, nextExecute);
 
-            if (Calendar.preliminaryCallback != undefined) {
+            if (Calendar.preliminaryCallback != undefined){
                 event.preliminaryCommonTimeout = setTimeout(
                     Calendar.preliminaryCallback,
                     nextExecute - Calendar.preliminaryDelay
                 );
             }
 
-            if (event.preliminaryCallback != undefined) {
+            if (event.preliminaryCallback != undefined){
                 event.preliminaryTimeout = setTimeout(
                     event.preliminaryCallback,
                     nextExecute - event.preliminaryDelay
@@ -72,25 +72,25 @@ if(Calendar !== undefined) {
             }
         }
 
-        event.id = events.reduce(function (maxId, currentEvent) {
+        event.id = events.reduce(function (maxId, currentEvent){
                 return (maxId < currentEvent.id) ? currentEvent.id : maxId;
             }, 0) + 1;
         events.push(event);
 
-        if (Calendar.isSchedulerStarted == false) {
+        if (Calendar.isSchedulerStarted == false){
             Calendar.isSchedulerStarted = true;
             setInterval(Calendar.startEventScheduler, SCHEDULER_INTERVAL);
         }
     };
-    Calendar.editEventById = function (eventId, name, date) {
+    Calendar.editEventById = function (eventId, name, date){
         var events = Calendar.getAllEvents();
 
-        events.forEach(function (event) {
-            if (event.id === eventId) {
+        events.forEach(function (event){
+            if (event.id === eventId){
                 if (name !== undefined)
                     event.name = name;
 
-                if (date !== undefined) {
+                if (date !== undefined){
                     clearTimeout(event.timeout);
                     event.timeout = undefined;
 
@@ -104,17 +104,17 @@ if(Calendar !== undefined) {
 
                     var nextExecute = getNextExecuteDate(event) - new Date();
 
-                    if ((nextExecute >= 0) && (nextExecute <= MAX_TIMEOUT)) {
+                    if ((nextExecute >= 0) && (nextExecute <= MAX_TIMEOUT)){
                         event.timeout = setTimeout(event.callback, nextExecute);
 
-                        if (Calendar.preliminaryCallback != undefined) {
+                        if (Calendar.preliminaryCallback != undefined){
                             event.preliminaryCommonTimeout = setTimeout(
                                 Calendar.preliminaryCallback,
                                 nextExecute - Calendar.preliminaryDelay
                             );
                         }
 
-                        if (event.preliminaryCallback != undefined) {
+                        if (event.preliminaryCallback != undefined){
                             event.preliminaryTimeout = setTimeout(
                                 event.preliminaryCallback,
                                 nextExecute - event.preliminaryDelay
@@ -125,11 +125,11 @@ if(Calendar !== undefined) {
             }
         });
     };
-    Calendar.deleteEventById = function (eventId) {
+    Calendar.deleteEventById = function (eventId){
         var events = Calendar.getAllEvents();
 
-        var eventIndex = events.findIndex( function (event) {
-                return (event.id == eventId);
+        var eventIndex = events.findIndex(function (event){
+            return (event.id == eventId);
         } );
 
         if(eventIndex >= 0){
