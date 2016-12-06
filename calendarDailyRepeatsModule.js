@@ -70,7 +70,7 @@ if(Calendar !== undefined){
     Calendar.startEventScheduler = function() {
         var events = Calendar.getAllEvents();
         var nextExecute;
-        
+
         events.filter(
             function (event) {
                 nextExecute = getNextExecuteDate(event) - new Date();
@@ -106,25 +106,23 @@ if(Calendar !== undefined){
     Calendar.editEventById = function (eventId, name, date) {
         var events = Calendar.getAllEvents();
 
-        var currentIndex = events.find(
-            function (event) {
+        var currentEvent = events.find( function (event) {
                 return (event.id == eventId);
-            }
-        );
+        } );
 
-        if(currentIndex != undefined){
+        if(currentEvent != undefined){
             if(name !== undefined)
-                currentIndex.name = name;
+                currentEvent.name = name;
 
             if(date !== undefined){
-                clearTimeout(currentIndex.timeout);
-                currentIndex.timeout = undefined;
+                clearTimeout(currentEvent.timeout);
+                currentEvent.timeout = undefined;
 
-                currentIndex.dateTime = date;
+                currentEvent.dateTime = date;
 
-                var nextExecute = getNextExecuteDate(currentIndex) - new Date();
+                var nextExecute = getNextExecuteDate(currentEvent) - new Date();
                 if ((nextExecute >= 0) && (nextExecute <= MAX_TIMEOUT)) {
-                    currentIndex.timeout = setTimeout(currentIndex.callback, nextExecute);
+                    currentEvent.timeout = setTimeout(currentEvent.callback, nextExecute);
                 }
             }
         }

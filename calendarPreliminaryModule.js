@@ -128,11 +128,9 @@ if(Calendar !== undefined) {
     Calendar.deleteEventById = function (eventId) {
         var events = Calendar.getAllEvents();
 
-        var eventIndex = events.findIndex(
-            function (event) {
+        var eventIndex = events.findIndex( function (event) {
                 return (event.id == eventId);
-            }
-        );
+        } );
 
         if(eventIndex >= 0){
             clearTimeout(events[eventIndex].timeout);

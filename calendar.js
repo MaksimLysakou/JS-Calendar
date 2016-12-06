@@ -51,11 +51,9 @@ var Calendar = (function() {
         }
     }
     function deleteEventById(eventId) {
-        var eventIndex = events.findIndex(
-            function (event) {
+        var eventIndex = events.findIndex( function (event) {
                 return (event.id == eventId);
-            }
-        );
+        } );
 
         if(eventIndex >= 0){
             clearTimeout(events[eventIndex].timeout);
@@ -63,11 +61,9 @@ var Calendar = (function() {
         }
     }
     function editEventById(eventId, name, date) {
-        var currentEvent = events.find(
-            function (event) {
+        var currentEvent = events.find( function (event) {
                 return (event.id == eventId);
-            }
-        );
+        } );
 
         if(currentEvent != undefined){
             clearTimeout(currentEvent.timeout);
