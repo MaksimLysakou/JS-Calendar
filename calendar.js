@@ -1,4 +1,5 @@
-const INT32_MAX = 2147483647;
+const MAX_TIMEOUT = 2147483647;
+const SCHEDULER_INTERVAL = 60 * 1000;
 
 function getNextExecuteDate (event) {
     return event.dateTime;
@@ -16,30 +17,34 @@ var Calendar = (function() {
     var events = [];
 
     function startEventScheduler() {
+        var currentDate = new Date();
+        
         if(event instanceof Event){
-            if( ( event.dateTime - new Date() <= INT32_MAX ) &&
-                ( event.dateTime - new Date() > 0 ) &&
+            if( ( event.dateTime - currentDate <= MAX_TIMEOUT ) &&
+                ( event.dateTime - currentDate > 0 ) &&
                 ( event.timeout === undefined ) ){
-                event.timeout = setTimeout(event.callback, event.dateTime - new Date());
+                event.timeout = setTimeout(event.callback, event.dateTime - currentDate);
             }
         }
     }
 
     function addEvent(event) {
-            var timeout;
-            if( (event.dateTime >= new Date()) && (event.dateTime - new Date() <= INT32_MAX) ){
-                timeout = setTimeout(event.callback, event.dateTime - new Date());
-            }
-            event.id = events.reduce(function(maxId, currentEvent) {
-                return (maxId < currentEvent.id) ? currentEvent.id : maxId;
-            }, 0) + 1;
-            event.timeout = timeout;
-            events.push(event);
+        var timeout;
+        var currentDate = new Date();
+        
+        if( (event.dateTime >= currentDate) && (event.dateTime - currentDate <= MAX_TIMEOUT) ){
+            timeout = setTimeout(event.callback, event.dateTime - currentDate);
+        }
+        event.id = events.reduce(function(maxId, currentEvent) {
+            return (maxId < currentEvent.id) ? currentEvent.id : maxId;
+        }, 0) + 1;
+        event.timeout = timeout;
+        events.push(event);
 
-            if(this.isSchedulerStarted == false){
-                this.isSchedulerStarted = true;
-                setInterval(startEventScheduler, 60 * 1000);
-            }
+        if(this.isSchedulerStarted == false){
+            this.isSchedulerStarted = true;
+            setInterval(startEventScheduler, SCHEDULER_INTERVAL);
+        }
     }
     function deleteEventById(eventId) {
         for(var i =0; i<events.length; i++) {
@@ -56,11 +61,13 @@ var Calendar = (function() {
                 clearTimeout(event.timeout);
                 event.timeout = undefined;
 
+                var currentDate = new Date();
+
                 event.name = name;
                 event.dateTime = date;
 
-                if ((event.dateTime >= new Date()) && (event.dateTime - new Date() <= INT32_MAX)) {
-                    event.timeout = setTimeout(event.callback, event.dateTime - new Date());
+                if ((event.dateTime >= currentDate) && (event.dateTime - currentDate <= MAX_TIMEOUT)) {
+                    event.timeout = setTimeout(event.callback, event.dateTime - currentDate);
                 }
             }
         });

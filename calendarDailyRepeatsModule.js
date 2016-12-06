@@ -65,57 +65,58 @@ function getNextExecuteDate (event) {
         }
     }
 }
-Calendar.startEventScheduler = function() {
-    var events = Calendar.getAllEvents();
-    
-    events.forEach(function (event) {
-        var nextExecute = getNextExecuteDate(event) - new Date();
 
-        if (( nextExecute <= INT32_MAX ) &&
-            ( nextExecute > 0 ) &&
-            ( event.timeout === undefined )) {
+if(Calendar !== undefined){
+    Calendar.startEventScheduler = function() {
+        var events = Calendar.getAllEvents();
+
+        events.forEach(function (event) {
+            var nextExecute = getNextExecuteDate(event) - new Date();
+
+                ( nextExecute > 0 ) &&
+                ( event.timeout === undefined )) {
+
+                event.timeout = setTimeout(event.callback, nextExecute);
+            }
+        });
+    };
+    Calendar.addEvent = function (event) {
+        var events = Calendar.getAllEvents();
+        var nextExecute = getNextExecuteDate(event) - new Date();
 
             event.timeout = setTimeout(event.callback, nextExecute);
         }
-    });
-};
-Calendar.addEvent = function (event) {
-    var events = Calendar.getAllEvents();
-    var nextExecute = getNextExecuteDate(event) - new Date();
 
-    if( (nextExecute >= 0) && (nextExecute <= INT32_MAX) ){
-        event.timeout = setTimeout(event.callback, nextExecute);
-    }
+        event.id = events.reduce(function(maxId, currentEvent) {
+                return (maxId < currentEvent.id) ? currentEvent.id : maxId;
+            }, 0) + 1;
+        events.push(event);
 
-    event.id = events.reduce(function(maxId, currentEvent) {
-        return (maxId < currentEvent.id) ? currentEvent.id : maxId;
-    }, 0) + 1;
-    events.push(event);
+        if(Calendar.isSchedulerStarted == false){
+            Calendar.isSchedulerStarted = true;
+        }
+    };
+    Calendar.editEventById = function (eventId, name, date) {
+        var events = Calendar.getAllEvents();
 
-    if(Calendar.isSchedulerStarted == false){
-        Calendar.isSchedulerStarted = true;
-        setInterval(Calendar.startEventScheduler, 60 * 1000);
-    }
-};
-Calendar.editEventById = function (eventId, name, date) {
-    var events = Calendar.getAllEvents();
+        events.forEach(function(event) {
+            if(event.id === eventId) {
+                if(name !== undefined)
+                    event.name = name;
 
-    events.forEach(function(event) {
-        if(event.id === eventId) {
-            if(name !== undefined)
-                event.name = name;
+                if(date !== undefined){
+                    clearTimeout(event.timeout);
+                    event.timeout = undefined;
 
-            if(date !== undefined){
-                clearTimeout(event.timeout);
-                event.timeout = undefined;
+                    event.dateTime = date;
 
-                event.dateTime = date;
-
-                var nextExecute = getNextExecuteDate(event) - new Date();
-                if ((nextExecute >= 0) && (nextExecute <= INT32_MAX)) {
-                    event.timeout = setTimeout(event.callback, nextExecute);
+                    var nextExecute = getNextExecuteDate(event) - new Date();
+                        event.timeout = setTimeout(event.callback, nextExecute);
+                    }
                 }
             }
-        }
-    });
-};
+        });
+    };
+} else {
+    console.error("Main calendar module doesn't exists!")
+}
