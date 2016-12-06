@@ -22,13 +22,18 @@ if(Calendar !== undefined) {
     };
     Calendar.startEventScheduler = function () {
         var events = Calendar.getAllEvents();
+        var nextExecute;
 
-        events.forEach(function (event) {
-            var nextExecute = getNextExecuteDate(event) - new Date();
-            if (( nextExecute <= MAX_TIMEOUT ) &&
+        events.filter(
+            function (event) {
+                nextExecute = getNextExecuteDate(event) - new Date();
+
+                return ( (( nextExecute <= MAX_TIMEOUT ) &&
                 ( nextExecute > 0 ) &&
-                ( event.timeout === undefined )) {
-
+                ( event.timeout === undefined )) );
+            }
+        ).forEach(
+            function (event) {
                 event.timeout = setTimeout(event.callback, nextExecute);
 
                 if (Calendar.preliminaryCallback != undefined) {
@@ -43,7 +48,7 @@ if(Calendar !== undefined) {
                         nextExecute - event.preliminaryDelay);
                 }
             }
-        });
+        );
     };
     Calendar.addEvent = function (event) {
         var events = Calendar.getAllEvents();

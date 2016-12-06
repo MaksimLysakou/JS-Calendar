@@ -18,14 +18,18 @@ var Calendar = (function() {
 
     function startEventScheduler() {
         var currentDate = new Date();
-        
-        if(event instanceof Event){
-            if( ( event.dateTime - currentDate <= MAX_TIMEOUT ) &&
+
+        events.filter(
+            function (event) {
+                return ( ( event.dateTime - currentDate <= MAX_TIMEOUT ) &&
                 ( event.dateTime - currentDate > 0 ) &&
-                ( event.timeout === undefined ) ){
+                ( event.timeout === undefined ) );
+            }
+        ).forEach(
+            function (event) {
                 event.timeout = setTimeout(event.callback, event.dateTime - currentDate);
             }
-        }
+        );
     }
 
     function addEvent(event) {
@@ -59,15 +63,26 @@ var Calendar = (function() {
         }
     }
     function editEventById(eventId, name, date) {
+        var currentEvent = events.find(
             function (event) {
                 return (event.id == eventId);
             }
         );
 
+        if(currentEvent != undefined){
+            clearTimeout(currentEvent.timeout);
+            currentEvent.timeout = undefined;
 
             var currentDate = new Date();
 
+            currentEvent.name = name;
+            currentEvent.dateTime = date;
 
+            if ((currentEvent.dateTime >= currentDate) &&
+                (currentEvent.dateTime - currentDate <= MAX_TIMEOUT)) {
+                currentEvent.timeout = setTimeout(
+                    currentEvent.callback,
+                    currentEvent.dateTime - currentDate
                 );
             }
         }

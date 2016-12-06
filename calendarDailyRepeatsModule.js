@@ -69,17 +69,21 @@ function getNextExecuteDate (event) {
 if(Calendar !== undefined){
     Calendar.startEventScheduler = function() {
         var events = Calendar.getAllEvents();
+        var nextExecute;
+        
+        events.filter(
+            function (event) {
+                nextExecute = getNextExecuteDate(event) - new Date();
 
-        events.forEach(function (event) {
-            var nextExecute = getNextExecuteDate(event) - new Date();
-
-            if (( nextExecute <= MAX_TIMEOUT ) &&
+                return ( (( nextExecute <= MAX_TIMEOUT ) &&
                 ( nextExecute > 0 ) &&
-                ( event.timeout === undefined )) {
-
+                ( event.timeout === undefined )) );
+            }
+        ).forEach(
+            function (event) {
                 event.timeout = setTimeout(event.callback, nextExecute);
             }
-        });
+        );
     };
     Calendar.addEvent = function (event) {
         var events = Calendar.getAllEvents();
