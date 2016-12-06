@@ -47,30 +47,30 @@ var Calendar = (function() {
         }
     }
     function deleteEventById(eventId) {
-        for(var i =0; i<events.length; i++) {
-            if(events[i].id === eventId) {
-                clearTimeout(events[i].timeout);
-                events.splice(i, 1);
-                break;
+        var eventIndex = events.findIndex(
+            function (event) {
+                return (event.id == eventId);
             }
+        );
+
+        if(eventIndex >= 0){
+            clearTimeout(events[eventIndex].timeout);
+            events.splice(eventIndex, 1);
         }
     }
     function editEventById(eventId, name, date) {
-        events.forEach(function(event) {
-            if(event.id === eventId) {
-                clearTimeout(event.timeout);
-                event.timeout = undefined;
-
-                var currentDate = new Date();
-
-                event.name = name;
-                event.dateTime = date;
-
-                if ((event.dateTime >= currentDate) && (event.dateTime - currentDate <= MAX_TIMEOUT)) {
-                    event.timeout = setTimeout(event.callback, event.dateTime - currentDate);
-                }
+            function (event) {
+                return (event.id == eventId);
             }
-        });
+        );
+
+
+            var currentDate = new Date();
+
+
+                );
+            }
+        }
     }
     function getAllEvents() {
         return events;

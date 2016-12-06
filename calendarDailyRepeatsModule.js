@@ -73,6 +73,7 @@ if(Calendar !== undefined){
         events.forEach(function (event) {
             var nextExecute = getNextExecuteDate(event) - new Date();
 
+            if (( nextExecute <= MAX_TIMEOUT ) &&
                 ( nextExecute > 0 ) &&
                 ( event.timeout === undefined )) {
 
@@ -84,6 +85,7 @@ if(Calendar !== undefined){
         var events = Calendar.getAllEvents();
         var nextExecute = getNextExecuteDate(event) - new Date();
 
+        if( (nextExecute >= 0) && (nextExecute <= MAX_TIMEOUT) ){
             event.timeout = setTimeout(event.callback, nextExecute);
         }
 
@@ -94,28 +96,34 @@ if(Calendar !== undefined){
 
         if(Calendar.isSchedulerStarted == false){
             Calendar.isSchedulerStarted = true;
+            setInterval(Calendar.startEventScheduler, SCHEDULER_INTERVAL);
         }
     };
     Calendar.editEventById = function (eventId, name, date) {
         var events = Calendar.getAllEvents();
 
-        events.forEach(function(event) {
-            if(event.id === eventId) {
-                if(name !== undefined)
-                    event.name = name;
+        var currentIndex = events.find(
+            function (event) {
+                return (event.id == eventId);
+            }
+        );
 
-                if(date !== undefined){
-                    clearTimeout(event.timeout);
-                    event.timeout = undefined;
+        if(currentIndex != undefined){
+            if(name !== undefined)
+                currentIndex.name = name;
 
-                    event.dateTime = date;
+            if(date !== undefined){
+                clearTimeout(currentIndex.timeout);
+                currentIndex.timeout = undefined;
 
-                    var nextExecute = getNextExecuteDate(event) - new Date();
-                        event.timeout = setTimeout(event.callback, nextExecute);
-                    }
+                currentIndex.dateTime = date;
+
+                var nextExecute = getNextExecuteDate(currentIndex) - new Date();
+                if ((nextExecute >= 0) && (nextExecute <= MAX_TIMEOUT)) {
+                    currentIndex.timeout = setTimeout(currentIndex.callback, nextExecute);
                 }
             }
-        });
+        }
     };
 } else {
     console.error("Main calendar module doesn't exists!")

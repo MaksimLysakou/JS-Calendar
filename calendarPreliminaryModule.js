@@ -123,16 +123,19 @@ if(Calendar !== undefined) {
     Calendar.deleteEventById = function (eventId) {
         var events = Calendar.getAllEvents();
 
-        for (var i = 0; i < events.length; i++) {
-            if (events[i].id === eventId) {
-                clearTimeout(events[i].timeout);
-                clearTimeout(events[i].preliminaryCommonTimeout);
-                clearTimeout(events[i].preliminaryTimeout);
-                events.splice(i, 1);
-                break;
+        var eventIndex = events.findIndex(
+            function (event) {
+                return (event.id == eventId);
             }
+        );
+
+        if(eventIndex >= 0){
+            clearTimeout(events[eventIndex].timeout);
+            clearTimeout(events[eventIndex].preliminaryCommonTimeout);
+            clearTimeout(events[eventIndex].preliminaryTimeout);
+            events.splice(eventIndex, 1);
         }
-    };
+    }
 } else {
     console.error("Main calendar module doesn't exists!")
 }
